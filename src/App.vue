@@ -1,7 +1,9 @@
 <script>
+
 import { store } from '../store.js';
 import Input_select from './components/Input_select.vue';
 import axios from 'axios';
+
 export default {
   components: {
     Input_select,
@@ -43,7 +45,8 @@ export default {
 
         this.currencies = currencies;
       })
-
+    },
+    getChartInfo() {
 
     }
   },
@@ -58,19 +61,21 @@ export default {
           <div class="converter-container">
 
             <div class="row justify-content-center py-5">
-              <div class="col-12 text-center">
+              <div class="col-12 mb-4 text-center">
                 <h1 class=" fw-bold">
                   Currency converter
                 </h1>
               </div>
 
               <div class="col-10 my-3 ">
-                <h4> From {{ store.fromChange }}</h4>
-                <h4 class="my-1"> To {{ store.toChange }}</h4>
+                <h4>From {{ store.fromChange }}</h4>
+                <h4 class="my-1">To {{ store.toChange }}</h4>
               </div>
 
               <div class="col-12">
-                <Input_select :currencies="currencies"></Input_select>
+                <div>
+                  <Input_select :currencies="currencies"></Input_select>
+                </div>
               </div>
             </div>
 

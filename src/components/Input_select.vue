@@ -15,13 +15,24 @@ export default {
             value1: 1,
             value2: 1,
             error: null,
+            chartData: null,
+            chartCategories: null,
+            series: [],
+            options: {
+                chart: {
+                    id: 'vuechart-example'
+                },
+                xaxis: {
+                    categories: [],
+                },
+                colors: ['#ffffff', '#ffffff', '#ffffff', '#ffffff', '#ffffff'],
+            },
         }
     },
     mounted() {
         this.getValues('value1');
     },
     created() {
-
     },
     watch: {
         currency1() {
@@ -49,9 +60,11 @@ export default {
                         // E LO APPLICO ALL'ALTRO INPUT
                         this.value2 = str;
 
+                        // ASSEGNO I VALORI CORRETTI ALLE VARIABILI CHE MOSTRANO IL CAMBIO DELLA VALUTA
                         this.store.fromChange = this.value1 + ' ' + this.currency1;
                         this.store.toChange = this.value2 + ' ' + this.currency2;
 
+                        this.getChartInfo(this.currency1, this.currency2);
                     }).catch(error => {
                         console.error(error)
                     })
@@ -68,14 +81,45 @@ export default {
                         // E LO APPLICO ALL'ALTRO INPUT
                         this.value1 = str;
 
+                        // ASSEGNO I VALORI CORRETTI ALLE VARIABILI CHE MOSTRANO IL CAMBIO DELLA VALUTA
                         this.store.fromChange = this.value1 + this.currency1;
                         this.store.toChange = this.value2 + this.currency2;
+
+                        this.getChartInfo(this.currency2, this.currency1);
                     }).catch(error => {
                         console.error(error)
                     })
 
                 }
             }
+        },
+        getChartInfo(from, to) {
+            axios.get(`${this.store.endpoint}/2020-01-01..2024-05-01?&from=${from}&to=${to}`).then((response) => {
+
+
+                // RECUPERO IL RATE CHANGE
+                let result = response.data.rates;
+
+                // Pulisco dai valori precedenti
+                this.chartCategories = null;
+                this.chartData = null;
+                this.series = [];
+                this.options.xaxis.categories = [];
+
+                // Recupero le chiavi (le date) dell'oggetto ricevuto
+                this.chartCategories = Object.keys(result);
+
+                // Recupero il valore della valuta nella rispettiva data
+                this.chartData = Object.values(result).map(elem => elem.USD);
+
+                // Aggiorna le opzioni del grafico con i nuovi dati
+                this.options.xaxis.categories = this.chartCategories;
+                this.series = [{ name: `series-${from}-${to}`, data: this.chartData }];
+
+            }).catch(error => {
+                console.error(error)
+            })
+
         }
     },
 
@@ -102,9 +146,10 @@ export default {
                     <div class="col-5 m-1">
                         <label for="currency1" class="form-label mb-1">Currency</label>
                         <select class="form-select" name="currency1" id="currency1" v-model="currency1">
-                            <option v-for="currency in currencies" :value="currency.id" :id="currency.id">{{
-                                currency.name
-                            }}</option>
+                            <option v-show="currency.id != currency2" v-for="currency in currencies"
+                                :value="currency.id" :id="currency.id">{{
+                                    currency.name
+                                }}</option>
                         </select>
                     </div>
                 </div>
@@ -126,14 +171,20 @@ export default {
                     <div class="col-5 m-1">
                         <label for="currency2" class="form-label mb-1">Currency</label>
                         <select class="form-select" name="currency2" id="currency2" v-model="currency2">
-                            <option v-for="currency in currencies" :value="currency.id" :id="currency.id">{{
-                                currency.name
+                            <option v-show="currency.id != currency1" v-for="currency in currencies"
+                                :value="currency.id" :id="currency.id">{{
+                                    currency.name
                                 }}</option>
                         </select>
                     </div>
                 </div>
             </div>
 
+            <div class="col-12 mt-5">
+                <div>
+                    <apexchart width="100%" type="line" :options="options" :series="series"></apexchart>
+                </div>
+            </div>
 
         </div>
     </div>
