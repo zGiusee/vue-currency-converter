@@ -34,7 +34,8 @@ export default {
     },
     methods: {
         getValues(from) {
-            if (this.value1 != 0 && this.value2 != 0) {
+            // CONTROLLO SUI VALUES PER NON FARE CHIAMATE INUTILI
+            if (this.value1 != 0 && this.value2 != 0 && this.value1 != null && this.value2 != null) {
 
                 if (from == 'value1') {
                     this.lastFrom = 'value1';
@@ -48,6 +49,8 @@ export default {
                         // E LO APPLICO ALL'ALTRO INPUT
                         this.value2 = str;
 
+                        this.store.fromChange = this.value1 + ' ' + this.currency1;
+                        this.store.toChange = this.value2 + ' ' + this.currency2;
 
                     }).catch(error => {
                         console.error(error)
@@ -65,6 +68,8 @@ export default {
                         // E LO APPLICO ALL'ALTRO INPUT
                         this.value1 = str;
 
+                        this.store.fromChange = this.value1 + this.currency1;
+                        this.store.toChange = this.value2 + this.currency2;
                     }).catch(error => {
                         console.error(error)
                     })
@@ -82,9 +87,9 @@ export default {
         <div class="row justify-content-evenly">
 
 
-            <!-- PRIMA INPUT -->
+            <!-- PRIMA INPUT CON SELECT-->
             <div class="col-12">
-                <div class="row">
+                <div class="row justify-content-center">
                     <div class="col-5 m-1">
                         <div>
                             <label for="value1" class="form-label mb-1">Value</label>
@@ -99,16 +104,16 @@ export default {
                         <select class="form-select" name="currency1" id="currency1" v-model="currency1">
                             <option v-for="currency in currencies" :value="currency.id" :id="currency.id">{{
                                 currency.name
-                                }}</option>
+                            }}</option>
                         </select>
                     </div>
                 </div>
             </div>
 
 
-            <!-- SECONDA INPUT -->
+            <!-- SECONDA INPUT CON SELECT -->
             <div class="col-12">
-                <div class="row">
+                <div class="row justify-content-center">
                     <div class="col-5 m-1">
                         <div>
                             <label for="value2" class="form-label mb-1">Value</label>
@@ -123,7 +128,7 @@ export default {
                         <select class="form-select" name="currency2" id="currency2" v-model="currency2">
                             <option v-for="currency in currencies" :value="currency.id" :id="currency.id">{{
                                 currency.name
-                            }}</option>
+                                }}</option>
                         </select>
                     </div>
                 </div>
