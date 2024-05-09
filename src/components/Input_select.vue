@@ -40,7 +40,10 @@ export default {
         },
         currency2() {
             this.getValues(this.lastFrom);
-        }
+        },
+        // series() {
+        //     this.getChartInfo(this.currency1, this.currency2)
+        // }
 
     },
     methods: {
@@ -82,8 +85,8 @@ export default {
                         this.value1 = str;
 
                         // ASSEGNO I VALORI CORRETTI ALLE VARIABILI CHE MOSTRANO IL CAMBIO DELLA VALUTA
-                        this.store.fromChange = this.value1 + this.currency1;
-                        this.store.toChange = this.value2 + this.currency2;
+                        this.store.fromChange = this.value2 + this.currency2;
+                        this.store.toChange = this.value1 + this.currency1;
 
                         this.getChartInfo(this.currency2, this.currency1);
                     }).catch(error => {
@@ -95,36 +98,33 @@ export default {
         },
         getChartInfo(from, to) {
             axios.get(`${this.store.endpoint}/2020-01-01..2024-05-01?&from=${from}&to=${to}`).then((response) => {
-
-
-                // RECUPERO IL RATE CHANGE
                 let result = response.data.rates;
 
-                // Pulisco dai valori precedenti
-                this.chartCategories = null;
-                this.chartData = null;
-                this.series = [];
-                this.options.xaxis.categories = [];
-
-                // Recupero le chiavi (le date) dell'oggetto ricevuto
+                // Pulisci dai valori precedenti
                 this.chartCategories = Object.keys(result);
-
-                // Recupero il valore della valuta nella rispettiva data
                 this.chartData = Object.values(result).map(elem => elem.USD);
 
                 // Aggiorna le opzioni del grafico con i nuovi dati
                 this.options.xaxis.categories = this.chartCategories;
-                this.series = [{ name: `series-${from}-${to}`, data: this.chartData }];
 
+                // Assicurati che la serie contenga almeno un elemento prima di aggiornarla
+                if (!this.series || this.series.length === 0) {
+                    this.series.push({ name: 'series-1', data: [] });
+                }
+
+                // Aggiorna la serie dati solo se ci sono dati validi
+                if (this.chartData && this.chartData.length > 0) {
+                    this.series[0].data = this.chartData;
+                } else {
+                    console.error("Nessun dato valido per la serie del grafico");
+                }
             }).catch(error => {
                 console.error(error)
             })
-
         }
-    },
-
-    // /latest?amount=10&from=GBP&to=USD
+    }
 }
+
 </script>
 <template>
     <div class="container">
